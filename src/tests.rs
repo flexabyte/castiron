@@ -16,10 +16,6 @@ impl TestServer {
     fn new(port: u16) -> TestServer {
         TestServer(build_server("localhost", port))
     }
-
-    fn url(&self) -> String {
-        format!("http://{}:{}", self.0.socket.ip(), self.0.socket.port())
-    }
 }
 
 impl Drop for TestServer {
@@ -38,7 +34,7 @@ fn build_server(host: &str, port: u16) -> iron::Listening {
 #[tokio::test]
 async fn test_valid_signature() {
     // Spawn server in background
-    let server = TestServer::new(1337);
+    TestServer::new(1337);
 
     // Test request
     let (pubkey, seckey) = generate_keys();
@@ -56,17 +52,43 @@ async fn test_valid_signature() {
         .await
         .expect("Failure to post!");
 
-    println!("Response: {:#?}", res);
+    assert_eq!(res.status(), http::StatusCode::from_u16(200).unwrap())
 }
 
 
 #[tokio::test]
 async fn test_invalid_signature() {
     // Spawn server in background
-    let server = TestServer::new(1338);
+    TestServer::new(1338);
 
     // Test request
-    let (pubkey, seckey) = generate_keys();
+    let (_, seckey) = generate_keys();
+    let query = r#"{ "message": "hello" }"#;
+    let message = generate_message(query);
+    let signature_der = sign_message(&message, &seckey);
+    let client = reqwest::Client::builder()
+        .build().expect("Error building reqwest client.");
+
+    // Send a different public key 
+    let res = client.post("http://localhost:1338")
+        .body(query)
+        .header("Signature", b64_encode(&signature_der))
+        .header("X-Public-Key", "025e2b26716d128b0316bbe3c52d494974e1a39ec9ee447d9b470581a9e95c4cae".to_string())
+        .send()
+        .await
+        .expect("Failure to post!");
+
+    assert_eq!(res.status(), http::StatusCode::from_u16(401).unwrap())
+}
+
+
+#[tokio::test]
+async fn test_missing_public_key() {
+    // Spawn server in background
+    TestServer::new(1339);
+
+    // Test request
+    let (_, seckey) = generate_keys();
     let query = r#"{ "message": "hello" }"#;
     let message = generate_message(query);
     let signature_der = sign_message(&message, &seckey);
@@ -77,10 +99,32 @@ async fn test_invalid_signature() {
     let res = client.post("http://localhost:1337")
         .body(query)
         .header("Signature", b64_encode(&signature_der))
-        .header("X-Public-Key", "025e2b26716d128b0316bbe3c52d494974e1a39ec9ee447d9b470581a9e95c4cae".to_string())
         .send()
         .await
         .expect("Failure to post!");
 
-    println!("Response: {:#?}", res);
+    assert_eq!(res.status(), http::StatusCode::from_u16(401).unwrap())
+}
+
+
+#[tokio::test]
+async fn test_missing_signature() {
+    // Spawn server in background
+    TestServer::new(1340);
+
+    // Test request
+    let query = r#"{ "message": "hello" }"#;
+    let (pubkey, _) = generate_keys();
+    let client = reqwest::Client::builder()
+        .build().expect("Error building reqwest client.");
+
+    // Send a different public key 
+    let res = client.post("http://localhost:1337")
+        .body(query)
+        .header("X-Public-Key", pubkey.to_string())
+        .send()
+        .await
+        .expect("Failure to post!");
+
+    assert_eq!(res.status(), http::StatusCode::from_u16(401).unwrap())
 }

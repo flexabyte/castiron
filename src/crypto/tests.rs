@@ -48,8 +48,7 @@ fn test_invalid_key_message_signing() {
 fn test_import_publickey() {
     // Dummy public key
     let pubkey_str = "025e2b26716d128b0316bbe3c52d494974e1a39ec9ee447d9b470581a9e95c4cae";
-    println!("{}", pubkey_str);
     let public_key = import_public_key(&pubkey_str);
-    println!("{:?}", public_key);
+    assert_eq!(public_key.to_string(), pubkey_str.to_string());
 }
 

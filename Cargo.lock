@@ -91,6 +91,7 @@ version = "0.1.0"
 dependencies = [
  "base64 0.12.1",
  "hex",
+ "http",
  "iron",
  "rand 0.7.3",
  "reqwest",
