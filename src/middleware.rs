@@ -21,6 +21,7 @@ impl BeforeMiddleware for RequestSigningMiddleware {
         if signature_header.is_none() {
             // InvalidSignature
             let err = Error::MissingSignatureHeader;
+            // TODO: this should be bad request?
             return Err(iron::IronError::new(err, iron::status::Unauthorized));
         }
         let public_key_header = request.headers.get_raw("X-Public-Key")
@@ -28,16 +29,30 @@ impl BeforeMiddleware for RequestSigningMiddleware {
         if public_key_header.is_none() {
             // InvalidSignature
             let err = Error::MissingPublicKeyHeader;
+            // TODO: this should be bad request?
             return Err(iron::IronError::new(err, iron::status::Unauthorized));
-
         }
         
-        // Verify the signature
+        // Convert to an ECDSA 32 byte message
         let message = ecdsa::generate_message(&query);
-        let signature = ecdsa::import_signature(signature_header.unwrap());
-        let public_key = ecdsa::import_public_key(public_key_header.unwrap());
 
-        if !ecdsa::verify_signature(&message, &signature, &public_key) {
+        // I don't think this can fail... but just in case
+        if message.is_err() {
+            let err = Error::InvalidMessage;
+            return Err(iron::IronError::new(err, iron::status::BadRequest));
+        }
+        let signature = ecdsa::import_signature(signature_header.unwrap());
+        if signature.is_err() {
+            let err = Error::InvalidSignature;
+            return Err(iron::IronError::new(err, iron::status::BadRequest));
+        }
+        let public_key = ecdsa::import_public_key(public_key_header.unwrap());
+        if public_key.is_err() {
+            let err = Error::InvalidPublicKey;
+            return Err(iron::IronError::new(err, iron::status::BadRequest));
+        }
+
+        if !ecdsa::verify_signature(&message.unwrap(), &signature.unwrap(), &public_key.unwrap()) {
             // InvalidSignature
             let err = Error::InvalidSignature;
             return Err(iron::IronError::new(err, iron::status::Unauthorized));
