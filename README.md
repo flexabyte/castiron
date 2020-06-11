@@ -75,6 +75,7 @@ Developing on Cast Iron is highly welcome, feel free to submit any issues or pul
 
 ## TODO
 
+- [x] Implement proper error types for all ECDSA module methods.
 - [ ] Implement `AfterMiddleware` for response signing.
 - [ ] Implement `BeforeMiddleware`'s for common database crates/ORM's to allow users to check if a public key exists in their database.
 - [ ] Implement custom header names - not just `X-Public-Key` or `Signature`
