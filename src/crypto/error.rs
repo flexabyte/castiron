@@ -27,3 +27,4 @@ impl From<HexDecodeError> for EcdsaError {
         EcdsaError::HexDecode(e)
     }
 }
+

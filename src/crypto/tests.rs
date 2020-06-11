@@ -9,7 +9,7 @@ use rand::Rng;
 #[test]
 fn test_valid_key_message_signing() {
     // generate keys
-    let (public_key, secret_key) = generate_keys().expect("Error generating keys.");
+    let (public_key, secret_key) = generate_keys().unwrap();
 
     // convert string to message
     let message = generate_message("something I want signed.").unwrap();
@@ -25,7 +25,7 @@ fn test_valid_key_message_signing() {
 #[test]
 fn test_invalid_key_message_signing() {
     // generate keys for verification
-    let (public_key, _) = generate_keys().expect("Error generating keys.");
+    let (public_key, _) = generate_keys().unwrap();
 
     // attacker guesses the private key
     let mut key_slice = [0u8; 32];

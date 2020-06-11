@@ -1,6 +1,6 @@
 use secp256k1::{Secp256k1, Message, SecretKey, PublicKey, Signature};
-use crate::crypto::error::EcdsaError;
 use base64::decode as b64_decode;
+use crate::crypto::error::EcdsaError;
 use sha2::{Sha256, Digest};
 use rand::Rng;
 

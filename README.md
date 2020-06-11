@@ -9,7 +9,7 @@ Digital signatures are widely used to provide authentication without the need fo
 
 `cast-iron` aims to solve some of these problems for users who are looking to implement a solid `ECDSA` based digital signature middleware for their `Iron` servers. However, this project is still in its infancy, and so far only the more trivial and novel implementations exist. For example, to use the signature middleware:
 
-```
+```rust
 use castiron::middleware::RequestSigningMiddleware;
 
 fn hello_world(_: &mut Request) -> IronResult<Response> {
@@ -26,7 +26,7 @@ fn main () {
 
 The `RequestSigningMiddleware` allows the server to verify that the sender is who they say they are through the use of a `Signature` and `X-Public-Key` header like so:
 
-```
+```rust
 use castiron::crypto::ecdsa;
 // ...
 let (pubkey, seckey) = ecdsa::generate_keys().expect("Error generating keys.");
@@ -53,7 +53,7 @@ Although the server cannot ensure the public key is coming from the user who req
 
 This crate has not been published to crates.io yet as it's still under active development and is likely to have breaking changes in the near future. However, you can try it out like so in your Cargo.toml:
 
-```
+```toml
 [dependencies]
 castiron = { git = "https://github.com/flexabyte/castiron" }
 ```
@@ -62,7 +62,7 @@ castiron = { git = "https://github.com/flexabyte/castiron" }
 
 Currently, it uses the nightly build of rust, and I like to ensure proper test coverage through the use of `grcov`:
 
-```
+```bash
 grcov ./target/debug/ -s . -t html --llvm --branch --ignore-not-existing -o ./target/debug/coverage/
 ```
 
@@ -71,8 +71,10 @@ Please check the [`grcov`](https://github.com/mozilla/grcov) repository for more
 
 ## Contributing
 
-Developing on Cast Iron is highly welcome, feel free to submit any issues or pull requests through git, and remember - I won't accept a PR without sufficient unit/integration tests! `cargo test` is required!
+Developing on Cast Iron is highly welcome, feel free to submit any issues or pull requests through git, and remember - I won't accept a PR without sufficient unit/integration tests! `cargo test` is required.
 
 ## TODO
 
-[ ] - Write a Todo list...
+- [ ] Implement `AfterMiddleware` for response signing.
+- [ ] Implement `BeforeMiddleware`'s for common database crates/ORM's to allow users to check if a public key exists in their database.
+- [ ] Implement custom header names - not just `X-Public-Key` or `Signature`

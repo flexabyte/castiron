@@ -68,3 +68,4 @@ impl BeforeMiddleware for RequestSigningMiddleware {
 // let mut chain = Chain::new(hello_handler);
 // chain.link_before(RequestLoggingMiddleware {});
 // ```
+

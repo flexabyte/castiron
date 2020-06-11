@@ -7,10 +7,10 @@ use std::str::Utf8Error;
 pub enum Error {
     IoError(io::Error),
     InvalidSignature,
-    MissingSignatureHeader,
     InvalidMessage,
-    MissingPublicKeyHeader,
     InvalidPublicKey,
+    MissingSignatureHeader,
+    MissingPublicKeyHeader,
     Utf8Error(Utf8Error),
 }
 
@@ -19,11 +19,11 @@ pub type Result<T> = std::result::Result<T, Error>;
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
+            Error::InvalidMessage => write!(f, "Provided Message cannot be parsed"),
+            Error::InvalidPublicKey => write!(f, "Provided Public Key is invalid"),
             Error::MissingSignatureHeader => write!(f, "Missing Signature Header"),
             Error::MissingPublicKeyHeader => write!(f, "Missing X-Public-Key Header"),
             Error::InvalidSignature => write!(f, "Provided Signature is invalid"),
-            Error::InvalidMessage => write!(f, "Provided Message cannot be parsed"),
-            Error::InvalidPublicKey => write!(f, "Provided Public Key is invalid"),
             Error::IoError(ref err) => write!(f, "IoError({})", err),
             Error::Utf8Error(ref err) => write!(f, "Utf8Error({})", err),
         }
@@ -43,11 +43,11 @@ impl std::error::Error for Error {
 impl From<Error> for IronError {
     fn from(err: Error) -> IronError {
         match err {
+            Error::InvalidMessage => IronError::new(err, status::BadRequest),
+            Error::InvalidPublicKey => IronError::new(err, status::BadRequest),
             Error::MissingSignatureHeader => IronError::new(err, status::BadRequest),
             Error::MissingPublicKeyHeader => IronError::new(err, status::BadRequest),
             Error::InvalidSignature => IronError::new(err, status::Unauthorized),
-            Error::InvalidMessage => IronError::new(err, status::BadRequest),
-            Error::InvalidPublicKey => IronError::new(err, status::BadRequest),
             _ => IronError::new(err, status::InternalServerError)
         }
     }
@@ -64,5 +64,4 @@ impl From<Utf8Error> for Error {
         Error::Utf8Error(err)
     }
 }
-
 

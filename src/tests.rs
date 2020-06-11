@@ -180,3 +180,4 @@ async fn test_invalid_public_key() {
 
     assert_eq!(res.status(), http::StatusCode::from_u16(400).unwrap())
 }
+
