@@ -103,7 +103,7 @@ async fn test_missing_public_key() {
         .await
         .expect("Failure to post!");
 
-    assert_eq!(res.status(), http::StatusCode::from_u16(401).unwrap())
+    assert_eq!(res.status(), http::StatusCode::from_u16(400).unwrap())
 }
 
 
@@ -126,7 +126,7 @@ async fn test_missing_signature() {
         .await
         .expect("Failure to post!");
 
-    assert_eq!(res.status(), http::StatusCode::from_u16(401).unwrap())
+    assert_eq!(res.status(), http::StatusCode::from_u16(400).unwrap())
 }
 
 
