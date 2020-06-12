@@ -21,16 +21,14 @@ impl BeforeMiddleware for RequestSigningMiddleware {
         if signature_header.is_none() {
             // InvalidSignature
             let err = Error::MissingSignatureHeader;
-            // TODO: this should be bad request?
-            return Err(iron::IronError::new(err, iron::status::Unauthorized));
+            return Err(iron::IronError::new(err, iron::status::BadRequest));
         }
         let public_key_header = request.headers.get_raw("X-Public-Key")
               .and_then(|vals| std::str::from_utf8 (&vals[0]).ok());
         if public_key_header.is_none() {
             // InvalidSignature
             let err = Error::MissingPublicKeyHeader;
-            // TODO: this should be bad request?
-            return Err(iron::IronError::new(err, iron::status::Unauthorized));
+            return Err(iron::IronError::new(err, iron::status::BadRequest));
         }
         
         // Convert to an ECDSA 32 byte message
