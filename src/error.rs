@@ -1,6 +1,6 @@
+use iron::{status, IronError};
 use std::fmt;
 use std::io;
-use iron::{IronError, status};
 use std::str::Utf8Error;
 
 #[derive(Debug)]
@@ -35,7 +35,7 @@ impl std::error::Error for Error {
         match *self {
             Error::IoError(ref err) => Some(err),
             Error::Utf8Error(ref err) => Some(err),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -48,7 +48,7 @@ impl From<Error> for IronError {
             Error::MissingSignatureHeader => IronError::new(err, status::BadRequest),
             Error::MissingPublicKeyHeader => IronError::new(err, status::BadRequest),
             Error::InvalidSignature => IronError::new(err, status::Unauthorized),
-            _ => IronError::new(err, status::InternalServerError)
+            _ => IronError::new(err, status::InternalServerError),
         }
     }
 }
@@ -64,4 +64,3 @@ impl From<Utf8Error> for Error {
         Error::Utf8Error(err)
     }
 }
-

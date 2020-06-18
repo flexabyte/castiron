@@ -1,6 +1,6 @@
-use iron::prelude::*;
+use crate::crypto::ecdsa::{generate_keys, generate_message, sign_message};
 use crate::middleware::RequestSigningMiddleware;
-use crate::crypto::ecdsa::{generate_keys,generate_message,sign_message};
+use iron::prelude::*;
 use iron::Listening;
 
 use base64::encode as b64_encode;
@@ -27,8 +27,9 @@ impl Drop for TestServer {
 fn build_server(host: &str, port: u16) -> iron::Listening {
     let mut chain = Chain::new(hello_world);
     chain.link_before(RequestSigningMiddleware);
-    Iron::new(chain).http(format!("{}:{}", host, port))
-	.expect("Unable to start server.")
+    Iron::new(chain)
+        .http(format!("{}:{}", host, port))
+        .expect("Unable to start server.")
 }
 
 #[tokio::test]
@@ -42,9 +43,11 @@ async fn test_valid_signature() {
     let message = generate_message(query).unwrap();
     let signature_der = sign_message(&message, &seckey);
     let client = reqwest::Client::builder()
-        .build().expect("Error building reqwest client.");
-    
-    let res = client.post("http://localhost:1337")
+        .build()
+        .expect("Error building reqwest client.");
+
+    let res = client
+        .post("http://localhost:1337")
         .body(query)
         .header("Signature", b64_encode(&signature_der))
         .header("X-Public-Key", pubkey.to_string())
@@ -54,7 +57,6 @@ async fn test_valid_signature() {
 
     assert_eq!(res.status(), http::StatusCode::from_u16(200).unwrap())
 }
-
 
 #[tokio::test]
 async fn test_incorrect_signature() {
@@ -67,20 +69,24 @@ async fn test_incorrect_signature() {
     let message = generate_message(query).unwrap();
     let signature_der = sign_message(&message, &seckey);
     let client = reqwest::Client::builder()
-        .build().expect("Error building reqwest client.");
+        .build()
+        .expect("Error building reqwest client.");
 
-    // Send a different public key 
-    let res = client.post("http://localhost:1338")
+    // Send a different public key
+    let res = client
+        .post("http://localhost:1338")
         .body(query)
         .header("Signature", b64_encode(&signature_der))
-        .header("X-Public-Key", "025e2b26716d128b0316bbe3c52d494974e1a39ec9ee447d9b470581a9e95c4cae".to_string())
+        .header(
+            "X-Public-Key",
+            "025e2b26716d128b0316bbe3c52d494974e1a39ec9ee447d9b470581a9e95c4cae".to_string(),
+        )
         .send()
         .await
         .expect("Failure to post!");
 
     assert_eq!(res.status(), http::StatusCode::from_u16(401).unwrap())
 }
-
 
 #[tokio::test]
 async fn test_missing_public_key() {
@@ -93,10 +99,12 @@ async fn test_missing_public_key() {
     let message = generate_message(query).unwrap();
     let signature_der = sign_message(&message, &seckey);
     let client = reqwest::Client::builder()
-        .build().expect("Error building reqwest client.");
+        .build()
+        .expect("Error building reqwest client.");
 
-    // Send a different public key 
-    let res = client.post("http://localhost:1337")
+    // Send a different public key
+    let res = client
+        .post("http://localhost:1337")
         .body(query)
         .header("Signature", b64_encode(&signature_der))
         .send()
@@ -105,7 +113,6 @@ async fn test_missing_public_key() {
 
     assert_eq!(res.status(), http::StatusCode::from_u16(400).unwrap())
 }
-
 
 #[tokio::test]
 async fn test_missing_signature() {
@@ -116,10 +123,12 @@ async fn test_missing_signature() {
     let query = r#"{ "message": "hello" }"#;
     let (pubkey, _) = generate_keys().expect("Error generating keys.");
     let client = reqwest::Client::builder()
-        .build().expect("Error building reqwest client.");
+        .build()
+        .expect("Error building reqwest client.");
 
-    // Send a different public key 
-    let res = client.post("http://localhost:1337")
+    // Send a different public key
+    let res = client
+        .post("http://localhost:1337")
         .body(query)
         .header("X-Public-Key", pubkey.to_string())
         .send()
@@ -128,7 +137,6 @@ async fn test_missing_signature() {
 
     assert_eq!(res.status(), http::StatusCode::from_u16(400).unwrap())
 }
-
 
 #[tokio::test]
 async fn test_invalid_signature() {
@@ -141,10 +149,12 @@ async fn test_invalid_signature() {
     // This is not a valid DER signature (it's not actually even a signature...)
     let signature_der = "1d6cae63108637e9984d983ebbcab211072f58721c2f2a712886d066dfb27736";
     let client = reqwest::Client::builder()
-        .build().expect("Error building reqwest client.");
+        .build()
+        .expect("Error building reqwest client.");
 
-    // Send a different public key 
-    let res = client.post("http://localhost:1337")
+    // Send a different public key
+    let res = client
+        .post("http://localhost:1337")
         .body(query)
         .header("X-Public-Key", pubkey.to_string())
         .header("Signature", b64_encode(&signature_der))
@@ -154,7 +164,6 @@ async fn test_invalid_signature() {
 
     assert_eq!(res.status(), http::StatusCode::from_u16(400).unwrap())
 }
-
 
 #[tokio::test]
 async fn test_invalid_public_key() {
@@ -167,10 +176,12 @@ async fn test_invalid_public_key() {
     let pubkey = "1d6cae63108637e9984d983ebbcab211072f58721c2f2a712886d066dfb27736";
     let signature_der = "a4244aa43ddd6e3ef9e64bb80f4ee952f68232aa008d3da9c78e3b627e5675c8";
     let client = reqwest::Client::builder()
-        .build().expect("Error building reqwest client.");
+        .build()
+        .expect("Error building reqwest client.");
 
-    // Send a different public key 
-    let res = client.post("http://localhost:1337")
+    // Send a different public key
+    let res = client
+        .post("http://localhost:1337")
         .body(query)
         .header("X-Public-Key", pubkey.to_string())
         .header("Signature", b64_encode(&signature_der))
@@ -180,4 +191,3 @@ async fn test_invalid_public_key() {
 
     assert_eq!(res.status(), http::StatusCode::from_u16(400).unwrap())
 }
-

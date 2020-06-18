@@ -1,8 +1,8 @@
-use secp256k1::{Secp256k1, Message, SecretKey, PublicKey, Signature};
-use base64::decode as b64_decode;
 use crate::crypto::error::EcdsaError;
-use sha2::{Sha256, Digest};
+use base64::decode as b64_decode;
 use rand::Rng;
+use secp256k1::{Message, PublicKey, Secp256k1, SecretKey, Signature};
+use sha2::{Digest, Sha256};
 
 pub fn generate_keys() -> Result<(PublicKey, SecretKey), EcdsaError> {
     let secp = Secp256k1::new();

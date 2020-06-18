@@ -1,7 +1,6 @@
 pub mod crypto;
-pub mod middleware;
 pub mod error;
-
+pub mod middleware;
 
 #[cfg(test)]
 mod tests;

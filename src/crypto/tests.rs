@@ -1,10 +1,10 @@
 use crate::crypto::ecdsa::generate_keys;
 use crate::crypto::ecdsa::generate_message;
+use crate::crypto::ecdsa::import_public_key;
 use crate::crypto::ecdsa::sign_message;
 use crate::crypto::ecdsa::verify_signature;
-use crate::crypto::ecdsa::import_public_key;
-use secp256k1::{Secp256k1, SecretKey,Signature};
 use rand::Rng;
+use secp256k1::{Secp256k1, SecretKey, Signature};
 
 #[test]
 fn test_valid_key_message_signing() {
@@ -18,7 +18,8 @@ fn test_valid_key_message_signing() {
     let signature_der = sign_message(&message, &secret_key);
 
     // server verifies the message with their public key
-    let signature = Signature::from_der(&signature_der).expect("Unable to deserialize DER format signature.");
+    let signature =
+        Signature::from_der(&signature_der).expect("Unable to deserialize DER format signature.");
     assert!(verify_signature(&message, &signature, &public_key));
 }
 
@@ -30,8 +31,7 @@ fn test_invalid_key_message_signing() {
     // attacker guesses the private key
     let mut key_slice = [0u8; 32];
     rand::thread_rng().fill(&mut key_slice[..]);
-    let secret_key = SecretKey::from_slice(&key_slice)
-        .expect("32 bytes, within curve order");
+    let secret_key = SecretKey::from_slice(&key_slice).expect("32 bytes, within curve order");
 
     // convert to message
     let message = generate_message("something I want signed.").unwrap();
@@ -51,4 +51,3 @@ fn test_import_publickey() {
     let public_key = import_public_key(&pubkey_str).unwrap();
     assert_eq!(public_key.to_string(), pubkey_str.to_string());
 }
-
