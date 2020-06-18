@@ -20,6 +20,7 @@ impl BeforeMiddleware for RequestSigningMiddleware {
             .headers
             .get_raw("Signature")
             .and_then(|vals| std::str::from_utf8(&vals[0]).ok());
+        // TODO: This call should be replaceable with an `ok_or` call above
         if signature_header.is_none() {
             // InvalidSignature
             let err = Error::MissingSignatureHeader;
@@ -30,6 +31,7 @@ impl BeforeMiddleware for RequestSigningMiddleware {
             .get_raw("X-Public-Key")
             .and_then(|vals| std::str::from_utf8(&vals[0]).ok());
 
+        // TODO: This call should be replaceable with an `ok_or` call above
         if public_key_header.is_none() {
             // InvalidSignature
             let err = Error::MissingPublicKeyHeader;
