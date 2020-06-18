@@ -38,17 +38,17 @@ impl BeforeMiddleware for RequestSigningMiddleware {
 
         // Convert to an ECDSA 32 byte message
         let message = ecdsa::generate_message(&query)
-            .or_else(|err| Err(iron::IronError::new(err, iron::status::BadRequest)));
+            .or_else(|err| Err(iron::IronError::new(err, iron::status::BadRequest)))?;
 
         // Import the ECDSA signature from the header
         let signature = ecdsa::import_signature(signature_header.unwrap())
-            .or_else(|err| Err(iron::IronError::new(err, iron::status::BadRequest)));
+            .or_else(|err| Err(iron::IronError::new(err, iron::status::BadRequest)))?;
 
         // Import the public key from the header
         let public_key = ecdsa::import_public_key(public_key_header.unwrap())
-            .or_else(|err| Err(iron::IronError::new(err, iron::status::BadRequest)));
+            .or_else(|err| Err(iron::IronError::new(err, iron::status::BadRequest)))?;
 
-        if !ecdsa::verify_signature(&message.unwrap(), &signature.unwrap(), &public_key.unwrap()) {
+        if !ecdsa::verify_signature(&message, &signature, &public_key) {
             // Invalid Signature
             return Err(iron::IronError::new(
                 Error::InvalidSignature,
