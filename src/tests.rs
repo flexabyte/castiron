@@ -104,7 +104,7 @@ async fn test_missing_public_key() {
 
     // Send a different public key
     let res = client
-        .post("http://localhost:1337")
+        .post("http://localhost:1339")
         .body(query)
         .header("Signature", b64_encode(&signature_der))
         .send()
@@ -128,7 +128,7 @@ async fn test_missing_signature() {
 
     // Send a different public key
     let res = client
-        .post("http://localhost:1337")
+        .post("http://localhost:1340")
         .body(query)
         .header("X-Public-Key", pubkey.to_string())
         .send()
@@ -154,7 +154,7 @@ async fn test_invalid_signature() {
 
     // Send a different public key
     let res = client
-        .post("http://localhost:1337")
+        .post("http://localhost:1341")
         .body(query)
         .header("X-Public-Key", pubkey.to_string())
         .header("Signature", b64_encode(&signature_der))
@@ -181,7 +181,7 @@ async fn test_invalid_public_key() {
 
     // Send a different public key
     let res = client
-        .post("http://localhost:1337")
+        .post("http://localhost:1342")
         .body(query)
         .header("X-Public-Key", pubkey.to_string())
         .header("Signature", b64_encode(&signature_der))
