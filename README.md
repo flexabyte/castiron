@@ -1,4 +1,5 @@
-# Cast Iron
+# Cast Iron [![Build Status](https://travis-ci.com/flexabyte/castiron.svg?branch=master)](https://travis-ci.com/flexabyte/castiron)
+
 ## An ECDSA secure API signing library to accomodate secure communication with an Iron server.
 
 This crate was inspired by the [`sec256k1`](https://crates.io/crates/secp256k1) crate that is used to perform **Elliptic Curve** signing in the Bitcoin project. Other inspirations include the [`iron-hmac`](https://crates.io/crates/iron-hmac) crate that implements `HMAC256` request signing for Iron servers. Sadly, `iron-hmac` is pretty outdated and unmaintained now, and the requirement of a pre-shared secret makes it slightly less secure than an Elliptic Curve algorithm.
