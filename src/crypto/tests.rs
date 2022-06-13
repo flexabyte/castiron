@@ -4,7 +4,7 @@ use crate::crypto::ecdsa::import_public_key;
 use crate::crypto::ecdsa::sign_message;
 use crate::crypto::ecdsa::verify_signature;
 use rand::Rng;
-use secp256k1::{Secp256k1, SecretKey, Signature};
+use secp256k1::{Secp256k1, SecretKey, ecdsa};
 
 #[test]
 fn test_valid_key_message_signing() {
@@ -19,7 +19,7 @@ fn test_valid_key_message_signing() {
 
     // server verifies the message with their public key
     let signature =
-        Signature::from_der(&signature_der).expect("Unable to deserialize DER format signature.");
+        ecdsa::Signature::from_der(&signature_der).expect("Unable to deserialize DER format signature.");
     assert!(verify_signature(&message, &signature, &public_key));
 }
 
@@ -38,7 +38,7 @@ fn test_invalid_key_message_signing() {
 
     // attacker signs message with their guessed private key
     let secp = Secp256k1::new();
-    let sig = secp.sign(&message, &secret_key);
+    let sig = secp.sign_ecdsa(&message, &secret_key);
 
     // server fails to verify the message with their public key
     assert!(!verify_signature(&message, &sig, &public_key));

@@ -8,12 +8,12 @@ edition = "2018"
 
 [dependencies]
 iron = "*"
-tokio = { version = "0.2.21", features = ["macros", "rt-core"] }
-secp256k1 = { version = "0.17.2", features = ["rand"] }
-time = "0.2.16"
-sha2 = "0.8.2"
-hex = "0.4.2"
-base64 = "0.12.1"
-rand = "0.7.3"
+tokio = { version = "1.8.4", features = ["macros", "rt"] }
+secp256k1 = { version = "0.22.1", features = ["rand"] }
+time = "0.3.9"
+sha2 = "0.10.2"
+hex = "0.4.3"
+base64 = "0.13.0"
+rand = "0.8.5"
 reqwest = "0.10.6"
 http = "0.2.1"
